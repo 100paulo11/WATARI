@@ -42,6 +42,33 @@ def normalizar_comando(comando):
     return comando
 
 
+def dividir_comandos(comando):
+    separadores = [
+        " e depois ",
+        " depois ",
+        " e então ",
+        " e entao ",
+        " então ",
+        " entao "
+    ]
+
+    partes = [comando]
+
+    for separador in separadores:
+        novas_partes = []
+
+        for parte in partes:
+            novas_partes.extend(parte.split(separador))
+
+        partes = novas_partes
+
+    return [
+        parte.strip()
+        for parte in partes
+        if parte.strip()
+    ]
+
+
 def identificar_referencia(comando):
 
     referencias = [
