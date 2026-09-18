@@ -33,6 +33,16 @@ def criar_intencao_pergunta(tipo, parametros=None):
     )
 
 
+def criar_intencao_referencia(referencia, acao=None):
+    return criar_intencao(
+        "REFERENCIA",
+        referencia,
+        {
+            "acao": acao
+        }
+    )
+
+
 def criar_intencao_desconhecida(comando=None):
     return criar_intencao(
         "DESCONHECIDO",

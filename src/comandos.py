@@ -3,6 +3,7 @@ from src.intencoes import (
     criar_intencao_skill,
     criar_intencao_conversa,
     criar_intencao_pergunta,
+    criar_intencao_referencia,
     criar_intencao_desconhecida
 )
 
@@ -24,6 +25,30 @@ def normalizar_comando(comando):
         comando = comando.replace(caractere, "")
 
     return comando
+
+
+def identificar_referencia(comando):
+
+    referencias = [
+        "ele",
+        "ela",
+        "isso",
+        "esse",
+        "essa",
+        "esse aplicativo",
+        "essa aplicação",
+        "esse programa",
+        "o último",
+        "o ultimo",
+        "a última",
+        "a ultima"
+    ]
+
+    for referencia in referencias:
+        if referencia in comando:
+            return referencia
+
+    return None
 
 
 def identificar_intencao(comando):
@@ -76,6 +101,22 @@ def identificar_intencao(comando):
         "processos rodando",
         "processos abertos"
     ]
+
+    referencia = identificar_referencia(comando)
+
+    if referencia is not None:
+
+        if any(palavra in comando for palavra in palavras_fechar):
+            return criar_intencao_referencia(
+                referencia,
+                "FECHAR"
+            )
+
+        if any(palavra in comando for palavra in palavras_abrir):
+            return criar_intencao_referencia(
+                referencia,
+                "ABRIR"
+            )
 
     if any(frase in comando for frase in palavras_sistema):
         return criar_intencao_skill("SISTEMA")
@@ -141,11 +182,58 @@ def identificar_intencao(comando):
     return criar_intencao_desconhecida(comando)
 
 
-def executar_intencao(intencao):
+def executar_intencao(intencao, contexto=None):
 
     acao = intencao["acao"]
     objeto = intencao["objeto"]
     parametros = intencao["parametros"]
+
+    if acao == "REFERENCIA":
+
+        if contexto is None:
+            print("Watari: Não tenho contexto suficiente para isso.")
+            return
+
+        referencia = objeto
+        acao_referencia = parametros.get("acao")
+
+        aplicativo = contexto.obter("ultimo_aplicativo")
+
+        if aplicativo is None:
+            print("Watari: Não sei a que você está se referindo.")
+            return
+
+        if acao_referencia == "ABRIR":
+
+            nova_intencao = criar_intencao_skill(
+                "APLICATIVOS",
+                "ABRIR",
+                {
+                    "aplicativo": aplicativo
+                }
+            )
+
+            executar_intencao(
+                nova_intencao,
+                contexto
+            )
+
+        elif acao_referencia == "FECHAR":
+
+            nova_intencao = criar_intencao_skill(
+                "APLICATIVOS",
+                "FECHAR",
+                {
+                    "aplicativo": aplicativo
+                }
+            )
+
+            executar_intencao(
+                nova_intencao,
+                contexto
+            )
+
+        return
 
     if acao == "SKILL":
 
