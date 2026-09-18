@@ -5,33 +5,112 @@ from src.comandos import (
 )
 
 from src.contexto import Contexto
+from src.voz import ReconhecedorDeVoz
 
 
 print("================================")
 print("        WATARI INICIADO")
 print("================================")
 print()
-print("Digite 'sair' para encerrar.")
+print("Modo de entrada: VOZ")
+print()
+print("Diga 'encerrar' ou 'sair' para sair.")
 print()
 
 
 contexto = Contexto()
 
+reconhecedor = ReconhecedorDeVoz(
+    dispositivo=1
+)
+
+
+def deve_encerrar(comando):
+
+    comando = comando.lower().strip()
+
+    comando = comando.replace(
+        "?",
+        ""
+    )
+
+    comando = " ".join(
+        comando.split()
+    )
+
+    comandos_encerramento = [
+        "encerrar",
+        "encerra",
+        "encerre",
+        "sair",
+        "saia",
+        "finalizar",
+        "finaliza",
+        "finalize",
+        "parar",
+        "pare",
+        "fechar watari",
+        "feche watari",
+        "fechar o watari",
+        "feche o watari",
+        "encerrar watari",
+        "encerra watari",
+        "encerre watari",
+        "encerrar o watari",
+        "encerra o watari",
+        "encerre o watari",
+        "encerrar atari",
+        "encerra atari",
+        "encerre atari",
+        "encerrar o atari",
+        "encerra o atari",
+        "encerre o atari",
+        "sair watari",
+        "sair atari",
+        "finalizar watari",
+        "finalizar atari"
+    ]
+
+    return comando in comandos_encerramento
+
 
 while True:
 
-    comando = input("Você: ")
+    comando = reconhecedor.reconhecer(
+        duracao=5
+    )
 
-    if comando.lower().strip() == "sair":
-        print("Watari: Encerrando.")
+    if comando is None:
+        continue
+
+    print(
+        f"Você: {comando}"
+    )
+
+    if deve_encerrar(comando):
+
+        print(
+            "Watari: Encerrando."
+        )
+
         break
 
     if not comando.strip():
         continue
 
-    comandos = dividir_comandos(comando)
+    comandos = dividir_comandos(
+        comando
+    )
 
     for comando_individual in comandos:
+
+        if deve_encerrar(comando_individual):
+
+            print(
+                "Watari: Encerrando."
+            )
+
+            raise SystemExit
 
         contexto_pendente = contexto.obter(
             "acao_pendente"
@@ -40,17 +119,24 @@ while True:
         if contexto_pendente is not None:
 
             if contexto_pendente == "ABRIR":
+
                 comando_completo = (
-                    "abrir " + comando_individual
+                    "abrir "
+                    + comando_individual
                 )
 
             elif contexto_pendente == "FECHAR":
+
                 comando_completo = (
-                    "fechar " + comando_individual
+                    "fechar "
+                    + comando_individual
                 )
 
             else:
-                comando_completo = comando_individual
+
+                comando_completo = (
+                    comando_individual
+                )
 
             intencao = identificar_intencao(
                 comando_completo
@@ -83,12 +169,16 @@ while True:
             and intencao["objeto"] == "APLICATIVOS"
         ):
 
-            aplicativo = intencao["parametros"].get(
-                "aplicativo"
+            aplicativo = (
+                intencao["parametros"].get(
+                    "aplicativo"
+                )
             )
 
-            acao = intencao["parametros"].get(
-                "acao"
+            acao = (
+                intencao["parametros"].get(
+                    "acao"
+                )
             )
 
             if aplicativo is not None:
