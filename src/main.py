@@ -45,6 +45,11 @@ while True:
 
         intencao = identificar_intencao(comando)
 
+    contexto.adicionar_historico(
+        comando,
+        intencao
+    )
+
     if intencao["acao"] == "PERGUNTAR":
 
         contexto.definir(
@@ -65,6 +70,40 @@ while True:
                 "ultimo_aplicativo",
                 aplicativo
             )
+
+            contexto.definir(
+                "ultima_acao",
+                intencao["parametros"].get("acao")
+            )
+
+    elif intencao["acao"] == "ABRIR_SITE":
+
+        contexto.definir(
+            "ultimo_site",
+            intencao["objeto"]
+        )
+
+        contexto.definir(
+            "ultima_acao",
+            "ABRIR_SITE"
+        )
+
+    elif intencao["acao"] == "ABRIR_PASTA":
+
+        contexto.definir(
+            "ultima_pasta",
+            intencao["objeto"]
+        )
+
+        contexto.definir(
+            "ultima_acao",
+            "ABRIR_PASTA"
+        )
+
+    contexto.definir(
+        "ultimo_comando",
+        comando
+    )
 
     executar_intencao(
         intencao,
