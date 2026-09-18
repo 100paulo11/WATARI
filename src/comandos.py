@@ -121,6 +121,37 @@ def identificar_acao(comando):
     return None
 
 
+def identificar_objeto(comando):
+
+    comando = normalizar_comando(comando)
+
+    aplicativo = encontrar_aplicativo(comando)
+
+    if aplicativo:
+        return {
+            "tipo": "APLICATIVO",
+            "identificador": aplicativo
+        }
+
+    site = encontrar_site(comando)
+
+    if site:
+        return {
+            "tipo": "SITE",
+            "identificador": site
+        }
+
+    pasta = encontrar_pasta(comando)
+
+    if pasta:
+        return {
+            "tipo": "PASTA",
+            "identificador": pasta
+        }
+
+    return None
+
+
 def identificar_referencia(comando):
 
     referencias = [
@@ -150,6 +181,7 @@ def identificar_intencao(comando):
     comando = normalizar_comando(comando)
 
     acao = identificar_acao(comando)
+    objeto = identificar_objeto(comando)
 
     palavras_sistema = [
         "informações do sistema",
@@ -214,14 +246,12 @@ def identificar_intencao(comando):
 
     if acao == "FECHAR":
 
-        aplicativo = encontrar_aplicativo(comando)
-
-        if aplicativo:
+        if objeto and objeto["tipo"] == "APLICATIVO":
             return criar_intencao_skill(
                 "APLICATIVOS",
                 "FECHAR",
                 {
-                    "aplicativo": aplicativo
+                    "aplicativo": objeto["identificador"]
                 }
             )
 
@@ -231,30 +261,24 @@ def identificar_intencao(comando):
 
     if acao == "ABRIR":
 
-        site = encontrar_site(comando)
-
-        if site:
+        if objeto and objeto["tipo"] == "SITE":
             return criar_intencao(
                 "ABRIR_SITE",
-                site
+                objeto["identificador"]
             )
 
-        pasta = encontrar_pasta(comando)
-
-        if pasta:
+        if objeto and objeto["tipo"] == "PASTA":
             return criar_intencao(
                 "ABRIR_PASTA",
-                pasta
+                objeto["identificador"]
             )
 
-        aplicativo = encontrar_aplicativo(comando)
-
-        if aplicativo:
+        if objeto and objeto["tipo"] == "APLICATIVO":
             return criar_intencao_skill(
                 "APLICATIVOS",
                 "ABRIR",
                 {
-                    "aplicativo": aplicativo
+                    "aplicativo": objeto["identificador"]
                 }
             )
 
