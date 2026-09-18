@@ -61,7 +61,23 @@ def identificar_acao(comando):
         "consegue abrir",
         "consegue iniciar",
         "gostaria de abrir",
-        "gostaria de iniciar"
+        "gostaria de iniciar",
+
+        # Formas mais naturais
+        "quero o",
+        "quero a",
+        "me leva pro",
+        "me leve pro",
+        "me leva para",
+        "me leve para",
+        "quero ir para",
+        "quero ir pro",
+        "acessar",
+        "acesse",
+        "entrar no",
+        "entrar na",
+        "vai para",
+        "vá para"
     ]
 
     palavras_fechar = [
@@ -138,6 +154,10 @@ def identificar_objeto(comando):
 
 def identificar_referencia(comando):
 
+    comando = normalizar_comando(
+        comando
+    )
+
     referencias = [
         "ele",
         "ela",
@@ -161,6 +181,46 @@ def identificar_referencia(comando):
     return None
 
 
+def identificar_acao_implicita(comando, objeto):
+
+    comando = normalizar_comando(
+        comando
+    )
+
+    if objeto is None:
+        return None
+
+    tipo = objeto["tipo"]
+
+    # Sites e pastas podem ser entendidos
+    # como algo que o usuário quer acessar.
+    if tipo in ["SITE", "PASTA"]:
+
+        frases_implicitas = [
+            "quero o",
+            "quero a",
+            "quero ir para",
+            "quero ir pro",
+            "me leva para",
+            "me leva pro",
+            "me leve para",
+            "me leve pro",
+            "acessar",
+            "acesse",
+            "entrar no",
+            "entrar na",
+            "vai para",
+            "vá para"
+        ]
+
+        for frase in frases_implicitas:
+
+            if frase in comando:
+                return "ABRIR"
+
+    return None
+
+
 class Interpretador:
 
     def interpretar(self, comando):
@@ -169,16 +229,29 @@ class Interpretador:
             comando
         )
 
+        acao = identificar_acao(
+            comando_normalizado
+        )
+
+        objeto = identificar_objeto(
+            comando_normalizado
+        )
+
+        if acao is None:
+
+            acao = identificar_acao_implicita(
+                comando_normalizado,
+                objeto
+            )
+
+        referencia = identificar_referencia(
+            comando_normalizado
+        )
+
         return {
             "comando_original": comando,
             "comando_normalizado": comando_normalizado,
-            "acao": identificar_acao(
-                comando_normalizado
-            ),
-            "objeto": identificar_objeto(
-                comando_normalizado
-            ),
-            "referencia": identificar_referencia(
-                comando_normalizado
-            )
+            "acao": acao,
+            "objeto": objeto,
+            "referencia": referencia
         }

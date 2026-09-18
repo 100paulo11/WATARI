@@ -21,6 +21,7 @@ skill_manager = SkillManager()
 
 
 def dividir_comandos(comando):
+
     separadores = [
         " e depois ",
         " depois ",
@@ -33,9 +34,11 @@ def dividir_comandos(comando):
     partes = [comando]
 
     for separador in separadores:
+
         novas_partes = []
 
         for parte in partes:
+
             novas_partes.extend(
                 parte.split(separador)
             )
@@ -51,10 +54,21 @@ def dividir_comandos(comando):
 
 def identificar_intencao(comando):
 
-    comando = normalizar_comando(comando)
+    comando = normalizar_comando(
+        comando
+    )
 
-    acao = identificar_acao(comando)
-    objeto = identificar_objeto(comando)
+    acao = identificar_acao(
+        comando
+    )
+
+    objeto = identificar_objeto(
+        comando
+    )
+
+    referencia = identificar_referencia(
+        comando
+    )
 
     palavras_sistema = [
         "informações do sistema",
@@ -85,17 +99,17 @@ def identificar_intencao(comando):
         "processos abertos"
     ]
 
-    referencia = identificar_referencia(comando)
-
     if referencia is not None:
 
         if acao == "FECHAR":
+
             return criar_intencao_referencia(
                 referencia,
                 "FECHAR"
             )
 
         if acao == "ABRIR":
+
             return criar_intencao_referencia(
                 referencia,
                 "ABRIR"
@@ -105,6 +119,7 @@ def identificar_intencao(comando):
         frase in comando
         for frase in palavras_sistema
     ):
+
         return criar_intencao_skill(
             "SISTEMA"
         )
@@ -113,6 +128,7 @@ def identificar_intencao(comando):
         frase in comando
         for frase in palavras_processos
     ):
+
         return criar_intencao_skill(
             "PROCESSOS"
         )
@@ -120,6 +136,7 @@ def identificar_intencao(comando):
     if acao == "FECHAR":
 
         if objeto and objeto["tipo"] == "APLICATIVO":
+
             return criar_intencao_skill(
                 "APLICATIVOS",
                 "FECHAR",
@@ -135,18 +152,21 @@ def identificar_intencao(comando):
     if acao == "ABRIR":
 
         if objeto and objeto["tipo"] == "SITE":
+
             return criar_intencao(
                 "ABRIR_SITE",
                 objeto["identificador"]
             )
 
         if objeto and objeto["tipo"] == "PASTA":
+
             return criar_intencao(
                 "ABRIR_PASTA",
                 objeto["identificador"]
             )
 
         if objeto and objeto["tipo"] == "APLICATIVO":
+
             return criar_intencao_skill(
                 "APLICATIVOS",
                 "ABRIR",
@@ -160,11 +180,13 @@ def identificar_intencao(comando):
         )
 
     if "olá" in comando or "ola" in comando:
+
         return criar_intencao_conversa(
             "SAUDACAO"
         )
 
     if "seu nome" in comando:
+
         return criar_intencao_conversa(
             "NOME"
         )
@@ -173,6 +195,7 @@ def identificar_intencao(comando):
         "quem é você" in comando
         or "quem e voce" in comando
     ):
+
         return criar_intencao_conversa(
             "IDENTIDADE"
         )
@@ -191,26 +214,36 @@ def executar_intencao(intencao, contexto=None):
     if acao == "REFERENCIA":
 
         if contexto is None:
+
             print(
                 "Watari: Não tenho contexto suficiente "
                 "para isso."
             )
+
             return
 
         referencia = objeto
-        acao_referencia = parametros.get("acao")
+
+        acao_referencia = parametros.get(
+            "acao"
+        )
 
         entidade = contexto.obter_ultima_entidade()
 
         if entidade is None:
+
             print(
                 "Watari: Não sei a que você está "
                 "se referindo."
             )
+
             return
 
         tipo = entidade.get("tipo")
-        identificador = entidade.get("identificador")
+
+        identificador = entidade.get(
+            "identificador"
+        )
 
         if tipo == "APLICATIVO":
 
@@ -285,7 +318,9 @@ def executar_intencao(intencao, contexto=None):
 
     if acao == "EXECUTAR_SKILL":
 
-        acao_skill = parametros.get("acao")
+        acao_skill = parametros.get(
+            "acao"
+        )
 
         dados_skill = parametros.copy()
 
