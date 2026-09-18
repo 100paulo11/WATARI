@@ -1,6 +1,7 @@
 from src.skills.sistema import mostrar_informacoes_sistema
 from src.skills.processos import listar_processos
 from src.skills.aplicativos import abrir, fechar
+from src.skills.navegador import fechar_navegador
 
 
 class SkillManager:
@@ -21,6 +22,11 @@ class SkillManager:
         self.registrar_skill(
             "APLICATIVOS",
             self._executar_aplicativos
+        )
+
+        self.registrar_skill(
+            "NAVEGADOR",
+            self._executar_navegador
         )
 
     def registrar_skill(self, nome, funcao):
@@ -62,3 +68,13 @@ class SkillManager:
 
         elif acao == "FECHAR":
             fechar(aplicativo)
+
+    def _executar_navegador(self, comando=None):
+
+        if comando is None:
+            return
+
+        acao = comando.get("acao")
+
+        if acao == "FECHAR":
+            fechar_navegador()

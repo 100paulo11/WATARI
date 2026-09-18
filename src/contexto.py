@@ -45,3 +45,18 @@ class Contexto:
 
     def limpar_historico(self):
         self.historico.clear()
+
+    def definir_ultima_entidade(self, tipo, identificador):
+        self.definir(
+            "ultima_entidade",
+            {
+                "tipo": tipo,
+                "identificador": identificador
+            }
+        )
+
+    def obter_ultima_entidade(self):
+        return self.obter("ultima_entidade")
+
+    def limpar_ultima_entidade(self):
+        self.remover("ultima_entidade")

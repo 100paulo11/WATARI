@@ -63,6 +63,7 @@ while True:
     ):
 
         aplicativo = intencao["parametros"].get("aplicativo")
+        acao = intencao["parametros"].get("acao")
 
         if aplicativo is not None:
 
@@ -73,7 +74,12 @@ while True:
 
             contexto.definir(
                 "ultima_acao",
-                intencao["parametros"].get("acao")
+                acao
+            )
+
+            contexto.definir_ultima_entidade(
+                "APLICATIVO",
+                aplicativo
             )
 
     elif intencao["acao"] == "ABRIR_SITE":
@@ -88,6 +94,11 @@ while True:
             "ABRIR_SITE"
         )
 
+        contexto.definir_ultima_entidade(
+            "SITE",
+            intencao["objeto"]
+        )
+
     elif intencao["acao"] == "ABRIR_PASTA":
 
         contexto.definir(
@@ -98,6 +109,11 @@ while True:
         contexto.definir(
             "ultima_acao",
             "ABRIR_PASTA"
+        )
+
+        contexto.definir_ultima_entidade(
+            "PASTA",
+            intencao["objeto"]
         )
 
     contexto.definir(

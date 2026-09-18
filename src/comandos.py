@@ -197,19 +197,22 @@ def executar_intencao(intencao, contexto=None):
         referencia = objeto
         acao_referencia = parametros.get("acao")
 
-        aplicativo = contexto.obter("ultimo_aplicativo")
+        entidade = contexto.obter_ultima_entidade()
 
-        if aplicativo is None:
+        if entidade is None:
             print("Watari: Não sei a que você está se referindo.")
             return
 
-        if acao_referencia == "ABRIR":
+        tipo = entidade.get("tipo")
+        identificador = entidade.get("identificador")
+
+        if tipo == "APLICATIVO":
 
             nova_intencao = criar_intencao_skill(
                 "APLICATIVOS",
-                "ABRIR",
+                acao_referencia,
                 {
-                    "aplicativo": aplicativo
+                    "aplicativo": identificador
                 }
             )
 
@@ -218,26 +221,66 @@ def executar_intencao(intencao, contexto=None):
                 contexto
             )
 
-        elif acao_referencia == "FECHAR":
+        elif tipo == "SITE":
 
-            nova_intencao = criar_intencao_skill(
-                "APLICATIVOS",
-                "FECHAR",
-                {
-                    "aplicativo": aplicativo
-                }
-            )
+            if acao_referencia == "ABRIR":
 
-            executar_intencao(
-                nova_intencao,
-                contexto
-            )
+                nova_intencao = criar_intencao(
+                    "ABRIR_SITE",
+                    identificador
+                )
+
+                executar_intencao(
+                    nova_intencao,
+                    contexto
+                )
+
+            elif acao_referencia == "FECHAR":
+
+                nova_intencao = criar_intencao_skill(
+                    "NAVEGADOR",
+                    "FECHAR"
+                )
+
+                executar_intencao(
+                    nova_intencao,
+                    contexto
+                )
+
+            else:
+
+                print(
+                    "Watari: Ainda não sei executar "
+                    "essa ação para um site."
+                )
+
+        elif tipo == "PASTA":
+
+            if acao_referencia == "ABRIR":
+
+                nova_intencao = criar_intencao(
+                    "ABRIR_PASTA",
+                    identificador
+                )
+
+                executar_intencao(
+                    nova_intencao,
+                    contexto
+                )
+
+            else:
+
+                print(
+                    "Watari: Ainda não sei fechar "
+                    "esse tipo de entidade."
+                )
 
         return
 
     if acao == "SKILL":
 
         if parametros:
+
             skill_manager.executar(
                 objeto,
                 {
@@ -245,7 +288,9 @@ def executar_intencao(intencao, contexto=None):
                     "aplicativo": parametros.get("aplicativo")
                 }
             )
+
         else:
+
             skill_manager.executar(objeto)
 
     elif acao == "ABRIR_SITE":
@@ -269,7 +314,10 @@ def executar_intencao(intencao, contexto=None):
             print("Watari: Meu nome é Watari.")
 
         elif objeto == "IDENTIDADE":
-            print("Watari: Eu sou o Watari, seu assistente pessoal.")
+            print(
+                "Watari: Eu sou o Watari, "
+                "seu assistente pessoal."
+            )
 
     elif acao == "PERGUNTAR":
 
@@ -281,7 +329,9 @@ def executar_intencao(intencao, contexto=None):
 
     elif acao == "DESCONHECIDO":
 
-        print("Watari: Ainda não sei executar esse comando.")
+        print(
+            "Watari: Ainda não sei executar esse comando."
+        )
 
     else:
 
