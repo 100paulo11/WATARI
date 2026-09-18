@@ -17,12 +17,27 @@ skill_manager = SkillManager()
 
 def normalizar_comando(comando):
     comando = comando.lower().strip()
-    comando = " ".join(comando.split())
 
     caracteres = ["?", "!", ".", ","]
 
     for caractere in caracteres:
         comando = comando.replace(caractere, "")
+
+    comando = " ".join(comando.split())
+
+    palavras_desnecessarias = [
+        "watari",
+        "por favor",
+        "você pode",
+        "voce pode",
+        "poderia",
+        "por gentileza"
+    ]
+
+    for palavra in palavras_desnecessarias:
+        comando = comando.replace(palavra, " ")
+
+    comando = " ".join(comando.split())
 
     return comando
 
