@@ -33,22 +33,32 @@ while True:
 
     for comando_individual in comandos:
 
-        contexto_pendente = contexto.obter("acao_pendente")
+        contexto_pendente = contexto.obter(
+            "acao_pendente"
+        )
 
         if contexto_pendente is not None:
 
             if contexto_pendente == "ABRIR":
-                comando_completo = "abrir " + comando_individual
+                comando_completo = (
+                    "abrir " + comando_individual
+                )
 
             elif contexto_pendente == "FECHAR":
-                comando_completo = "fechar " + comando_individual
+                comando_completo = (
+                    "fechar " + comando_individual
+                )
 
             else:
                 comando_completo = comando_individual
 
-            intencao = identificar_intencao(comando_completo)
+            intencao = identificar_intencao(
+                comando_completo
+            )
 
-            contexto.remover("acao_pendente")
+            contexto.remover(
+                "acao_pendente"
+            )
 
         else:
 
@@ -69,7 +79,7 @@ while True:
             )
 
         if (
-            intencao["acao"] == "SKILL"
+            intencao["acao"] == "EXECUTAR_SKILL"
             and intencao["objeto"] == "APLICATIVOS"
         ):
 
@@ -118,7 +128,7 @@ while True:
         elif intencao["acao"] == "ABRIR_PASTA":
 
             contexto.definir(
-                "ultima_pasta",
+                "ultimo_pasta",
                 intencao["objeto"]
             )
 

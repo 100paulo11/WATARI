@@ -6,14 +6,24 @@ def criar_intencao(acao, objeto=None, parametros=None):
     }
 
 
-def criar_intencao_skill(skill, acao=None, parametros=None):
+def criar_intencao_acao(acao, objeto=None, parametros=None):
     return criar_intencao(
-        "SKILL",
+        acao,
+        objeto,
+        parametros
+    )
+
+
+def criar_intencao_skill(skill, acao=None, parametros=None):
+    dados = parametros.copy() if parametros else {}
+
+    if acao is not None:
+        dados["acao"] = acao
+
+    return criar_intencao(
+        "EXECUTAR_SKILL",
         skill,
-        {
-            "acao": acao,
-            **(parametros or {})
-        }
+        dados
     )
 
 

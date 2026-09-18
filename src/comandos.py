@@ -148,25 +148,44 @@ def identificar_intencao(comando):
 
     if referencia is not None:
 
-        if any(palavra in comando for palavra in palavras_fechar):
+        if any(
+            palavra in comando
+            for palavra in palavras_fechar
+        ):
             return criar_intencao_referencia(
                 referencia,
                 "FECHAR"
             )
 
-        if any(palavra in comando for palavra in palavras_abrir):
+        if any(
+            palavra in comando
+            for palavra in palavras_abrir
+        ):
             return criar_intencao_referencia(
                 referencia,
                 "ABRIR"
             )
 
-    if any(frase in comando for frase in palavras_sistema):
-        return criar_intencao_skill("SISTEMA")
+    if any(
+        frase in comando
+        for frase in palavras_sistema
+    ):
+        return criar_intencao_skill(
+            "SISTEMA"
+        )
 
-    if any(frase in comando for frase in palavras_processos):
-        return criar_intencao_skill("PROCESSOS")
+    if any(
+        frase in comando
+        for frase in palavras_processos
+    ):
+        return criar_intencao_skill(
+            "PROCESSOS"
+        )
 
-    if any(palavra in comando for palavra in palavras_fechar):
+    if any(
+        palavra in comando
+        for palavra in palavras_fechar
+    ):
 
         aplicativo = encontrar_aplicativo(comando)
 
@@ -179,9 +198,14 @@ def identificar_intencao(comando):
                 }
             )
 
-        return criar_intencao_pergunta("FECHAR")
+        return criar_intencao_pergunta(
+            "FECHAR"
+        )
 
-    if any(palavra in comando for palavra in palavras_abrir):
+    if any(
+        palavra in comando
+        for palavra in palavras_abrir
+    ):
 
         site = encontrar_site(comando)
 
@@ -210,18 +234,31 @@ def identificar_intencao(comando):
                 }
             )
 
-        return criar_intencao_pergunta("ABRIR")
+        return criar_intencao_pergunta(
+            "ABRIR"
+        )
 
     if "olá" in comando or "ola" in comando:
-        return criar_intencao_conversa("SAUDACAO")
+        return criar_intencao_conversa(
+            "SAUDACAO"
+        )
 
     if "seu nome" in comando:
-        return criar_intencao_conversa("NOME")
+        return criar_intencao_conversa(
+            "NOME"
+        )
 
-    if "quem é você" in comando or "quem e voce" in comando:
-        return criar_intencao_conversa("IDENTIDADE")
+    if (
+        "quem é você" in comando
+        or "quem e voce" in comando
+    ):
+        return criar_intencao_conversa(
+            "IDENTIDADE"
+        )
 
-    return criar_intencao_desconhecida(comando)
+    return criar_intencao_desconhecida(
+        comando
+    )
 
 
 def executar_intencao(intencao, contexto=None):
@@ -233,7 +270,10 @@ def executar_intencao(intencao, contexto=None):
     if acao == "REFERENCIA":
 
         if contexto is None:
-            print("Watari: Não tenho contexto suficiente para isso.")
+            print(
+                "Watari: Não tenho contexto suficiente "
+                "para isso."
+            )
             return
 
         referencia = objeto
@@ -242,7 +282,10 @@ def executar_intencao(intencao, contexto=None):
         entidade = contexto.obter_ultima_entidade()
 
         if entidade is None:
-            print("Watari: Não sei a que você está se referindo.")
+            print(
+                "Watari: Não sei a que você está "
+                "se referindo."
+            )
             return
 
         tipo = entidade.get("tipo")
@@ -319,43 +362,51 @@ def executar_intencao(intencao, contexto=None):
 
         return
 
-    if acao == "SKILL":
+    if acao == "EXECUTAR_SKILL":
 
-        if parametros:
+        acao_skill = parametros.get("acao")
 
-            skill_manager.executar(
-                objeto,
-                {
-                    "acao": parametros.get("acao"),
-                    "aplicativo": parametros.get("aplicativo")
-                }
-            )
+        dados_skill = parametros.copy()
 
-        else:
+        dados_skill["acao"] = acao_skill
 
-            skill_manager.executar(objeto)
+        skill_manager.executar(
+            objeto,
+            dados_skill
+        )
 
     elif acao == "ABRIR_SITE":
 
         from src.executor import executar_site
 
-        executar_site(objeto)
+        executar_site(
+            objeto
+        )
 
     elif acao == "ABRIR_PASTA":
 
         from src.executor import executar_pasta
 
-        executar_pasta(objeto)
+        executar_pasta(
+            objeto
+        )
 
     elif acao == "CONVERSAR":
 
         if objeto == "SAUDACAO":
-            print("Watari: Olá. Como posso ajudar?")
+
+            print(
+                "Watari: Olá. Como posso ajudar?"
+            )
 
         elif objeto == "NOME":
-            print("Watari: Meu nome é Watari.")
+
+            print(
+                "Watari: Meu nome é Watari."
+            )
 
         elif objeto == "IDENTIDADE":
+
             print(
                 "Watari: Eu sou o Watari, "
                 "seu assistente pessoal."
@@ -364,17 +415,28 @@ def executar_intencao(intencao, contexto=None):
     elif acao == "PERGUNTAR":
 
         if objeto == "ABRIR":
-            print("Watari: O que você deseja que eu abra?")
+
+            print(
+                "Watari: O que você deseja "
+                "que eu abra?"
+            )
 
         elif objeto == "FECHAR":
-            print("Watari: O que você deseja que eu feche?")
+
+            print(
+                "Watari: O que você deseja "
+                "que eu feche?"
+            )
 
     elif acao == "DESCONHECIDO":
 
         print(
-            "Watari: Ainda não sei executar esse comando."
+            "Watari: Ainda não sei executar "
+            "esse comando."
         )
 
     else:
 
-        print("Watari: Não reconheci essa intenção.")
+        print(
+            "Watari: Não reconheci essa intenção."
+        )
