@@ -58,7 +58,9 @@ def dividir_comandos(comando):
         novas_partes = []
 
         for parte in partes:
-            novas_partes.extend(parte.split(separador))
+            novas_partes.extend(
+                parte.split(separador)
+            )
 
         partes = novas_partes
 
@@ -67,6 +69,56 @@ def dividir_comandos(comando):
         for parte in partes
         if parte.strip()
     ]
+
+
+def identificar_acao(comando):
+
+    comando = normalizar_comando(comando)
+
+    palavras_abrir = [
+        "abra",
+        "abre",
+        "abrir",
+        "inicie",
+        "iniciar",
+        "comece",
+        "começar",
+        "quero abrir",
+        "quero iniciar",
+        "pode abrir",
+        "pode iniciar",
+        "consegue abrir",
+        "consegue iniciar",
+        "gostaria de abrir",
+        "gostaria de iniciar"
+    ]
+
+    palavras_fechar = [
+        "feche",
+        "fecha",
+        "fechar",
+        "encerre",
+        "encerrar",
+        "termine",
+        "terminar",
+        "quero fechar",
+        "quero encerrar",
+        "pode fechar",
+        "pode encerrar",
+        "consegue fechar",
+        "consegue encerrar",
+        "gostaria de fechar"
+    ]
+
+    for palavra in palavras_abrir:
+        if palavra in comando:
+            return "ABRIR"
+
+    for palavra in palavras_fechar:
+        if palavra in comando:
+            return "FECHAR"
+
+    return None
 
 
 def identificar_referencia(comando):
@@ -97,23 +149,7 @@ def identificar_intencao(comando):
 
     comando = normalizar_comando(comando)
 
-    palavras_abrir = [
-        "abra",
-        "abre",
-        "abrir",
-        "pode abrir",
-        "inicie",
-        "iniciar"
-    ]
-
-    palavras_fechar = [
-        "feche",
-        "fecha",
-        "fechar",
-        "pode fechar",
-        "encerre",
-        "encerrar"
-    ]
+    acao = identificar_acao(comando)
 
     palavras_sistema = [
         "informações do sistema",
@@ -148,19 +184,13 @@ def identificar_intencao(comando):
 
     if referencia is not None:
 
-        if any(
-            palavra in comando
-            for palavra in palavras_fechar
-        ):
+        if acao == "FECHAR":
             return criar_intencao_referencia(
                 referencia,
                 "FECHAR"
             )
 
-        if any(
-            palavra in comando
-            for palavra in palavras_abrir
-        ):
+        if acao == "ABRIR":
             return criar_intencao_referencia(
                 referencia,
                 "ABRIR"
@@ -182,10 +212,7 @@ def identificar_intencao(comando):
             "PROCESSOS"
         )
 
-    if any(
-        palavra in comando
-        for palavra in palavras_fechar
-    ):
+    if acao == "FECHAR":
 
         aplicativo = encontrar_aplicativo(comando)
 
@@ -202,10 +229,7 @@ def identificar_intencao(comando):
             "FECHAR"
         )
 
-    if any(
-        palavra in comando
-        for palavra in palavras_abrir
-    ):
+    if acao == "ABRIR":
 
         site = encontrar_site(comando)
 
