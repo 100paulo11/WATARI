@@ -1,3 +1,7 @@
+
+from contextlib import redirect_stdout
+from io import StringIO
+
 from src.comandos import (
     identificar_intencao,
     executar_intencao,
@@ -6,6 +10,7 @@ from src.comandos import (
 
 from src.contexto import Contexto
 from src.voz import ReconhecedorDeVoz
+from src.fala import VozWatari
 
 
 print("================================")
@@ -13,62 +18,39 @@ print("        WATARI INICIADO")
 print("================================")
 print()
 print("Modo de entrada: VOZ")
-print()
 print("Diga 'encerrar' ou 'sair' para sair.")
 print()
 
 
 contexto = Contexto()
+reconhecedor = ReconhecedorDeVoz(dispositivo=1)
+voz = VozWatari()
 
-reconhecedor = ReconhecedorDeVoz(
-    dispositivo=1
-)
+
+def responder(mensagem):
+    voz.falar(mensagem)
 
 
 def deve_encerrar(comando):
-
     comando = comando.lower().strip()
-
-    comando = comando.replace(
-        "?",
-        ""
-    )
-
-    comando = " ".join(
-        comando.split()
-    )
+    comando = comando.replace("?", "")
+    comando = " ".join(comando.split())
 
     comandos_encerramento = [
-        "encerrar",
-        "encerra",
-        "encerre",
-        "sair",
-        "saia",
-        "finalizar",
-        "finaliza",
-        "finalize",
-        "parar",
-        "pare",
-        "fechar watari",
-        "feche watari",
-        "fechar o watari",
-        "feche o watari",
-        "encerrar watari",
-        "encerra watari",
-        "encerre watari",
-        "encerrar o watari",
-        "encerra o watari",
-        "encerre o watari",
-        "encerrar atari",
-        "encerra atari",
-        "encerre atari",
-        "encerrar o atari",
-        "encerra o atari",
-        "encerre o atari",
-        "sair watari",
-        "sair atari",
-        "finalizar watari",
-        "finalizar atari"
+        "encerrar", "encerra", "encerre",
+        "sair", "saia",
+        "finalizar", "finaliza", "finalize",
+        "parar", "pare",
+        "fechar watari", "feche watari",
+        "fechar o watari", "feche o watari",
+        "encerrar watari", "encerra watari",
+        "encerre watari", "encerrar o watari",
+        "encerra o watari", "encerre o watari",
+        "encerrar atari", "encerra atari",
+        "encerre atari", "encerrar o atari",
+        "encerra o atari", "encerre o atari",
+        "sair watari", "sair atari",
+        "finalizar watari", "finalizar atari"
     ]
 
     return comando in comandos_encerramento
@@ -76,81 +58,46 @@ def deve_encerrar(comando):
 
 while True:
 
-    comando = reconhecedor.reconhecer(
-        duracao=5
-    )
+    comando = reconhecedor.reconhecer(duracao=6)
 
     if comando is None:
         continue
 
-    print(
-        f"Você: {comando}"
-    )
+    print(f"Você: {comando}")
 
     if deve_encerrar(comando):
-
-        print(
-            "Watari: Encerrando."
-        )
-
+        responder("Encerrando.")
         break
 
     if not comando.strip():
         continue
 
-    comandos = dividir_comandos(
-        comando
-    )
+    comandos = dividir_comandos(comando)
 
     for comando_individual in comandos:
 
         if deve_encerrar(comando_individual):
-
-            print(
-                "Watari: Encerrando."
-            )
-
+            responder("Encerrando.")
             raise SystemExit
 
-        contexto_pendente = contexto.obter(
-            "acao_pendente"
-        )
+        contexto_pendente = contexto.obter("acao_pendente")
 
         if contexto_pendente is not None:
 
             if contexto_pendente == "ABRIR":
-
-                comando_completo = (
-                    "abrir "
-                    + comando_individual
-                )
+                comando_completo = "abrir " + comando_individual
 
             elif contexto_pendente == "FECHAR":
-
-                comando_completo = (
-                    "fechar "
-                    + comando_individual
-                )
+                comando_completo = "fechar " + comando_individual
 
             else:
+                comando_completo = comando_individual
 
-                comando_completo = (
-                    comando_individual
-                )
-
-            intencao = identificar_intencao(
-                comando_completo
-            )
-
-            contexto.remover(
-                "acao_pendente"
-            )
+            intencao = identificar_intencao(comando_completo)
+            contexto.remover("acao_pendente")
 
         else:
-
-            intencao = identificar_intencao(
-                comando_individual
-            )
+            intencao = identificar_intencao(comando_individual)
 
         contexto.adicionar_historico(
             comando_individual,
@@ -158,7 +105,6 @@ while True:
         )
 
         if intencao["acao"] == "PERGUNTAR":
-
             contexto.definir(
                 "acao_pendente",
                 intencao["objeto"]
@@ -168,30 +114,12 @@ while True:
             intencao["acao"] == "EXECUTAR_SKILL"
             and intencao["objeto"] == "APLICATIVOS"
         ):
-
-            aplicativo = (
-                intencao["parametros"].get(
-                    "aplicativo"
-                )
-            )
-
-            acao = (
-                intencao["parametros"].get(
-                    "acao"
-                )
-            )
+            aplicativo = intencao["parametros"].get("aplicativo")
+            acao = intencao["parametros"].get("acao")
 
             if aplicativo is not None:
-
-                contexto.definir(
-                    "ultimo_aplicativo",
-                    aplicativo
-                )
-
-                contexto.definir(
-                    "ultima_acao",
-                    acao
-                )
+                contexto.definir("ultimo_aplicativo", aplicativo)
+                contexto.definir("ultima_acao", acao)
 
                 contexto.definir_ultima_entidade(
                     "APLICATIVO",
@@ -199,16 +127,11 @@ while True:
                 )
 
         elif intencao["acao"] == "ABRIR_SITE":
-
             contexto.definir(
                 "ultimo_site",
                 intencao["objeto"]
             )
-
-            contexto.definir(
-                "ultima_acao",
-                "ABRIR_SITE"
-            )
+            contexto.definir("ultima_acao", "ABRIR_SITE")
 
             contexto.definir_ultima_entidade(
                 "SITE",
@@ -216,16 +139,11 @@ while True:
             )
 
         elif intencao["acao"] == "ABRIR_PASTA":
-
             contexto.definir(
                 "ultimo_pasta",
                 intencao["objeto"]
             )
-
-            contexto.definir(
-                "ultima_acao",
-                "ABRIR_PASTA"
-            )
+            contexto.definir("ultima_acao", "ABRIR_PASTA")
 
             contexto.definir_ultima_entidade(
                 "PASTA",
@@ -237,7 +155,19 @@ while True:
             comando_individual
         )
 
-        executar_intencao(
-            intencao,
-            contexto
-        )
+        saida = StringIO()
+
+        with redirect_stdout(saida):
+            executar_intencao(
+                intencao,
+                contexto
+            )
+
+        for linha in saida.getvalue().splitlines():
+
+            if linha.startswith("Watari:"):
+                mensagem = linha.split(":", 1)[1].strip()
+                responder(mensagem)
+
+            elif linha.strip():
+                print(linha)
